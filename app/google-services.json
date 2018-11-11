@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "855686307378",
+    "firebase_url": "https://food-savers-6415a.firebaseio.com",
+    "project_id": "food-savers-6415a",
+    "storage_bucket": "food-savers-6415a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855686307378:android:adfafbf423e77291",
+        "android_client_info": {
+          "package_name": "com.frankegan.foodsavers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "855686307378-2vraejbk2kkdulfp9f9dgjttdo9nbhoo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.frankegan.foodsavers",
+            "certificate_hash": "4e5cc674aec1740746318bd6c9816d8ba968aeb1"
+          }
+        },
+        {
+          "client_id": "855686307378-e7hvep80o2ad5m5kkfok4gu1hdprlase.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCScqe7CAyvLfG8Ok-yPObwHmsmhhuMXR8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855686307378-e7hvep80o2ad5m5kkfok4gu1hdprlase.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

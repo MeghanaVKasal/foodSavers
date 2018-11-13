@@ -11,7 +11,15 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.frankegan.foodsavers.model.Food;
+import com.frankegan.foodsavers.model.Post;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreatePostActivity extends AppCompatActivity {
     private ListView foodItemListView;
@@ -33,7 +41,32 @@ public class CreatePostActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                firestore.collection("posts").add();
+                List<String> tags = new ArrayList<>();
+                tags.add("Apple");
+                final List<Food> foods = new ArrayList<>();
+                for (int i = 0; i < adapter.getCount(); i++) {
+                    foods.add(new Food("", adapter.getItem(i), 1));
+                }
+                firestore.collection("posts").add(new Post(
+                        new GeoPoint(0, 0),
+                        "100 Institute Rd",
+                        tags,
+                        "picture-url",
+                        "An apple",
+                        false,
+                        "users/MzB8GGIQS67hxEYVP6Vu",
+                        "users/MzB8GGIQS67hxEYVP6Vu",
+                        new ArrayList<Food>()
+                )).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override public void onSuccess(DocumentReference documentReference) {
+                        for (Food f : foods) {
+                            firestore.collection("posts")
+                                    .document(documentReference.getId())
+                                    .collection("foodItems")
+                                    .add(f);
+                        }
+                    }
+                });
             }
         });
 

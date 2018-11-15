@@ -22,15 +22,13 @@
     <ListView
         android:id="@+id/food_list_view"
         android:layout_width="0dp"
-        android:layout_height="140dp"
+        android:layout_height="189dp"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="56dp"
         android:layout_marginEnd="4dp"
-        android:layout_marginBottom="62dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/addFoodItem"
         />
 
     <Button
@@ -44,24 +42,58 @@
         app:layout_constraintEnd_toEndOf="parent"
         />
 
-    <EditText
-        android:id="@+id/addressInput"
-        android:layout_width="wrap_content"
-        android:layout_height="49dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="Address"
-        android:inputType="textPostalAddress"
-        app:layout_constraintStart_toStartOf="@+id/attachPhotoButton"
-        app:layout_constraintTop_toTopOf="parent"/>
-
     <Button
         android:id="@+id/attachPhotoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
+        android:layout_marginBottom="111dp"
         android:text="Attach Photo"
+        app:layout_constraintBottom_toTopOf="@+id/food_list_view"
         app:layout_constraintStart_toStartOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/addressInput"
+        app:layout_constraintTop_toBottomOf="@+id/descInput"
         />
+
+    <EditText
+        android:id="@+id/addressInput"
+        android:layout_width="361dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="20dp"
+        android:ems="10"
+        android:hint="Address"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/descInput"
+        app:layout_constraintEnd_toEndOf="@+id/descInput"
+        app:layout_constraintStart_toStartOf="@+id/descInput"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <EditText
+        android:id="@+id/descInput"
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="22dp"
+        android:ems="10"
+        android:hint="Food Decsription"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/attachPhotoButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addressInput"/>
+
+    <ImageView
+        android:id="@+id/theumbnail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxHeight="96dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/attachPhotoButton"
+        app:layout_constraintEnd_toEndOf="@+id/attachPhotoButton"
+        app:layout_constraintStart_toEndOf="@+id/attachPhotoButton"
+        app:layout_constraintTop_toTopOf="@+id/attachPhotoButton"
+        tools:srcCompat="@tools:sample/avatars[2]"/>
 </android.support.constraint.ConstraintLayout>

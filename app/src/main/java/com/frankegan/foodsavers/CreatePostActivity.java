@@ -86,7 +86,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         new GeoPoint(0, 0),
                         addressInput.getText().toString(),
                         tags,
-                        "picture-url",
+                        photoUrl,
                         descInput.getText().toString(),
                         false,
                         "users/MzB8GGIQS67hxEYVP6Vu",

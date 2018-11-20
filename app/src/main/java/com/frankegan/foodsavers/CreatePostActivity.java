@@ -90,8 +90,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         descInput.getText().toString(),
                         false,
                         "users/MzB8GGIQS67hxEYVP6Vu",
-                        "users/MzB8GGIQS67hxEYVP6Vu",
-                        new ArrayList<Food>()
+                        "users/MzB8GGIQS67hxEYVP6Vu"
                 )).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override public void onSuccess(DocumentReference documentReference) {
                         for (Food f : foods) {

@@ -13,7 +13,6 @@ public class Post {
     boolean claimed;
     String producer;
     String consumer;
-    List<Food> foodItems;
 
     public Post(
             GeoPoint location,
@@ -23,8 +22,7 @@ public class Post {
             String description,
             boolean claimed,
             String producer,
-            String consumer,
-            List<Food> foodItems
+            String consumer
     ) {
         this.location = location;
         this.address = address;
@@ -34,7 +32,6 @@ public class Post {
         this.claimed = claimed;
         this.producer = producer;
         this.consumer = consumer;
-        this.foodItems = foodItems;
     }
 
     public GeoPoint getLocation() {
@@ -69,10 +66,6 @@ public class Post {
         return consumer;
     }
 
-    public List<Food> getFoodItems() {
-        return foodItems;
-    }
-
     public void setLocation(GeoPoint location) {
         this.location = location;
     }
@@ -103,9 +96,5 @@ public class Post {
 
     public void setConsumer(String consumer) {
         this.consumer = consumer;
-    }
-
-    public void setFoodItems(List<Food> foodItems) {
-        this.foodItems = foodItems;
     }
 }

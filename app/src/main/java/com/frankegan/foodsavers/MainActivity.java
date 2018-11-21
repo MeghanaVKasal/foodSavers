@@ -14,14 +14,24 @@ import android.view.View;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private FirebaseAuth firebaseAuth;
     private static final int RC_SIGN_IN = 123;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore firestore;
+    FirebaseInstanceId firebaseInstanceId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,17 +40,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        firestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
-        if (firebaseAuth.getCurrentUser() == null) {
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAvailableProviders(Collections.singletonList(
-                                    new AuthUI.IdpConfig.GoogleBuilder().build()))
-                            .build(),
-                    RC_SIGN_IN);
-        }
-
+        firebaseInstanceId = FirebaseInstanceId.getInstance();
+        initAuthentication();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -61,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
             // Successfully signed in
             if (resultCode == RESULT_OK) {
                 Log.d(TAG, response.toString());
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                firestore.collection("users")
+                        .document(user.getUid())
+                        .set(user, SetOptions.merge());
             } else {
                 // Sign in failed
                 if (response == null) {
@@ -74,6 +81,36 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 Log.e(TAG, "Sign-in error: ", response.getError());
+            }
+        }
+    }
+
+    private void initAuthentication() {
+        if (firebaseAuth.getCurrentUser() == null) {
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .setAvailableProviders(Collections.singletonList(
+                                    new AuthUI.IdpConfig.GoogleBuilder().build()))
+                            .build(),
+                    RC_SIGN_IN);
+        } else {
+            final FirebaseUser user = firebaseAuth.getCurrentUser();
+            if (user != null) {
+                HashMap<String, String> userData = new HashMap<>();
+                userData.put("displayName", user.getDisplayName());
+                userData.put("email", user.getEmail());
+                userData.put("photoUrl", user.getPhotoUrl().toString());
+                firestore.collection("users").document(user.getUid())
+                        .set(userData, SetOptions.merge());
+                firebaseInstanceId.getInstanceId()
+                        .addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                            @Override public void onSuccess(InstanceIdResult instanceIdResult) {
+                                firestore.collection("users")
+                                        .document(user.getUid())
+                                        .update("fcmToken", instanceIdResult.getToken());
+                            }
+                        });
             }
         }
     }

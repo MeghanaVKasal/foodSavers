@@ -3,6 +3,7 @@ package com.frankegan.foodsavers;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -33,7 +34,6 @@ import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.label.FirebaseVisionLabel;
 import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetector;
-import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetectorOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -127,13 +127,14 @@ public class CreatePostActivity extends AppCompatActivity {
         if (requestCode == IMAGE_CAPTURE_REQ && resultCode == RESULT_OK && data != null) {
             Bundle extras = data.getExtras();
             if (extras == null) return;
-            Bitmap bitmap = (Bitmap) extras.get("data");
+            Bitmap photo = rotate((Bitmap) extras.get("data"));
+            if (photo == null) return;
             thumbnail.setVisibility(View.VISIBLE);
-            thumbnail.setImageBitmap(bitmap);
-            addTags(bitmap);
+            thumbnail.setImageBitmap(photo);
+            addTags(photo);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            photo.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] bytes = baos.toByteArray();
 
             final StorageReference imageRef = storage.getReference(System.currentTimeMillis() + ".jpg");
@@ -172,11 +173,6 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void addTags(Bitmap photo) {
-        // TODO: 11/14/18 add ui for adding tags for food items
-        FirebaseVisionLabelDetectorOptions options =
-                new FirebaseVisionLabelDetectorOptions.Builder()
-                        .setConfidenceThreshold(0.8f)
-                        .build();
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(photo);
         FirebaseVisionLabelDetector detector = FirebaseVision.getInstance()
                 .getVisionLabelDetector();
@@ -216,5 +212,12 @@ public class CreatePostActivity extends AppCompatActivity {
                 })
                 .setCancelable(true)
                 .show();
+    }
+
+    Bitmap rotate(Bitmap bitmap) {
+        Matrix matrix = new Matrix();
+        // setup rotation degree
+        matrix.postRotate(90);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 }

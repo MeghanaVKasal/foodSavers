@@ -61,7 +61,7 @@ public class TrackingService extends Service {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-        String stop = "stop";
+        final String stop = "stop";
         registerReceiver(stopReceiver, new IntentFilter(stop));
         PendingIntent broadcastIntent = PendingIntent.getBroadcast(
                 this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
@@ -130,5 +130,10 @@ public class TrackingService extends Service {
                 }
             }, null);
         }
+    }
+
+    @Override public void onDestroy() {
+//        unregisterReceiver(stopReceiver);
+        super.onDestroy();
     }
 }

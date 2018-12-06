@@ -29,6 +29,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetector;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetectorOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -39,6 +44,7 @@ import java.util.List;
 
 public class CreatePostActivity extends AppCompatActivity {
     private final static int IMAGE_CAPTURE_REQ = 201;
+    private static final String TAG = CreatePostActivity.class.getSimpleName();
 
     private ListView foodItemListView;
     ArrayAdapter<String> adapter;
@@ -48,7 +54,6 @@ public class CreatePostActivity extends AppCompatActivity {
     private EditText descInput;
     private ImageView thumbnail;
     private String photoUrl;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,13 +116,21 @@ public class CreatePostActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * This callback is ran after the external camera has taken a photo. The photo is provided to us
+     * as intent extras.
+     *
+     * @param data Contains an Intent extra called "data" which contains the bitmap of our photo.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == IMAGE_CAPTURE_REQ && resultCode == RESULT_OK && data != null) {
             Bundle extras = data.getExtras();
+            if (extras == null) return;
             Bitmap bitmap = (Bitmap) extras.get("data");
             thumbnail.setVisibility(View.VISIBLE);
             thumbnail.setImageBitmap(bitmap);
+            addTags(bitmap);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -158,9 +171,34 @@ public class CreatePostActivity extends AppCompatActivity {
         }
     }
 
-
-    private void addTags() {
+    private void addTags(Bitmap photo) {
         // TODO: 11/14/18 add ui for adding tags for food items
+        FirebaseVisionLabelDetectorOptions options =
+                new FirebaseVisionLabelDetectorOptions.Builder()
+                        .setConfidenceThreshold(0.8f)
+                        .build();
+        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(photo);
+        FirebaseVisionLabelDetector detector = FirebaseVision.getInstance()
+                .getVisionLabelDetector();
+        detector.detectInImage(image)
+                .addOnSuccessListener(
+                        new OnSuccessListener<List<FirebaseVisionLabel>>() {
+                            @Override
+                            public void onSuccess(List<FirebaseVisionLabel> labels) {
+                                // Task completed successfully
+                                for (FirebaseVisionLabel l : labels) {
+                                    Log.d(TAG, String.format("%s: %f %%", l.getLabel(), l.getConfidence()));
+                                }
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // Task failed with an exception
+                                Log.d(TAG, e.getMessage(), e);
+                            }
+                        });
     }
 
     private void addFoodItem() {

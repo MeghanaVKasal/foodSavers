@@ -30,6 +30,8 @@ import com.google.firebase.iid.InstanceIdResult;
 import java.util.Collections;
 import java.util.HashMap;
 
+import javax.annotation.Nullable;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 123;
@@ -37,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
     FirebaseInstanceId firebaseInstanceId;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,23 +59,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, CreatePostActivity.class));
             }
         });
-
-        //Check whether GPS tracking is enabled
-        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            finish();
-        }
-        //Check whether this app has access to the location permission//
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        //If the location permission has been granted, then start the TrackerService//
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-            startTrackerService();
-        } else {
-            //If the app doesn’t currently have access to the user’s location, then request access//
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST);
-        }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -85,10 +69,8 @@ public class MainActivity extends AppCompatActivity {
             // Successfully signed in
             if (resultCode == RESULT_OK) {
                 Log.d(TAG, response.toString());
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                firestore.collection("users")
-                        .document(user.getUid())
-                        .set(user, SetOptions.merge());
+                saveUserData(firebaseAuth.getCurrentUser());
+                requestLocationTracking();
             } else {
                 // Sign in failed
                 if (response == null) {
@@ -111,28 +93,24 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(
                     AuthUI.getInstance()
                             .createSignInIntentBuilder()
+                            .setIsSmartLockEnabled(false)
                             .setAvailableProviders(Collections.singletonList(
                                     new AuthUI.IdpConfig.GoogleBuilder().build()))
                             .build(),
                     RC_SIGN_IN);
         } else {
             final FirebaseUser user = firebaseAuth.getCurrentUser();
-            if (user != null) {
-                HashMap<String, String> userData = new HashMap<>();
-                userData.put("displayName", user.getDisplayName());
-                userData.put("email", user.getEmail());
-                userData.put("photoUrl", user.getPhotoUrl().toString());
-                firestore.collection("users").document(user.getUid())
-                        .set(userData, SetOptions.merge());
-                firebaseInstanceId.getInstanceId()
-                        .addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
-                            @Override public void onSuccess(InstanceIdResult instanceIdResult) {
-                                firestore.collection("users")
-                                        .document(user.getUid())
-                                        .update("fcmToken", instanceIdResult.getToken());
-                            }
-                        });
-            }
+            if (user == null) return;
+            saveUserData(user);
+            requestLocationTracking();
+            firebaseInstanceId.getInstanceId()
+                    .addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                        @Override public void onSuccess(InstanceIdResult instanceIdResult) {
+                            firestore.collection("users")
+                                    .document(user.getUid())
+                                    .update("fcmToken", instanceIdResult.getToken());
+                        }
+                    });
         }
     }
 
@@ -158,18 +136,40 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PERMISSIONS_REQUEST && grantResults.length == 1
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             //...then start the GPS tracking service//
-            startTrackerService();
+            requestLocationTracking();
         } else {
             //If the user denies the permission request, then display a toast with some more information//
             Toast.makeText(this, "Please enable location services to allow GPS tracking", Toast.LENGTH_SHORT).show();
         }
     }
 
-    //Start the TrackerService//
-    private void startTrackerService() {
-        startService(new Intent(this, TrackingService.class));
-        //Notify the user that tracking has been enabled//
-        Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
+    private void requestLocationTracking() {
+        //Check whether GPS tracking is enabled
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) return;
+        //Check whether this app has access to the location permission//
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        //If the location permission has been granted, then start the TrackerService//
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            startService(new Intent(this, TrackingService.class));
+            //Notify the user that tracking has been enabled//
+            Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
+        } else {
+            //If the app doesn’t currently have access to the user’s location, then request access//
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST);
+        }
     }
 
+    void saveUserData(@Nullable FirebaseUser firebaseUser) {
+        if (firebaseUser == null) return;
+        HashMap<String, String> userData = new HashMap<>();
+        userData.put("displayName", firebaseUser.getDisplayName());
+        userData.put("email", firebaseUser.getEmail());
+        userData.put("photoUrl", firebaseUser.getPhotoUrl().toString());
+        firestore.collection("users")
+                .document(firebaseUser.getUid())
+                .set(userData, SetOptions.merge());
+    }
 }

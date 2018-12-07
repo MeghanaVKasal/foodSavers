@@ -1,15 +1,22 @@
 package com.frankegan.foodsavers;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -19,14 +26,19 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.frankegan.foodsavers.model.Food;
 import com.frankegan.foodsavers.model.Post;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -44,7 +56,10 @@ import java.util.List;
 
 public class CreatePostActivity extends AppCompatActivity {
     private final static int IMAGE_CAPTURE_REQ = 201;
+    private final static int LOCATION_REQ = 202;
     private static final String TAG = CreatePostActivity.class.getSimpleName();
+    protected Location lastLocation;
+    private AddressResultReceiver addressResultReceiver;
 
     private ListView foodItemListView;
     ArrayAdapter<String> adapter;
@@ -54,6 +69,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private EditText descInput;
     private ImageView thumbnail;
     private String photoUrl;
+    private List<String> generateTags = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,31 +97,7 @@ public class CreatePostActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<String> tags = new ArrayList<>();
-                tags.add("Apple");
-                final List<Food> foods = new ArrayList<>();
-                for (int i = 0; i < adapter.getCount(); i++) {
-                    foods.add(new Food(adapter.getItem(i), 1));
-                }
-                firestore.collection("posts").add(new Post(
-                        new GeoPoint(0, 0),
-                        addressInput.getText().toString(),
-                        tags,
-                        photoUrl,
-                        descInput.getText().toString(),
-                        false,
-                        "users/MzB8GGIQS67hxEYVP6Vu",
-                        "users/MzB8GGIQS67hxEYVP6Vu"
-                )).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override public void onSuccess(DocumentReference documentReference) {
-                        for (Food f : foods) {
-                            firestore.collection("posts")
-                                    .document(documentReference.getId())
-                                    .collection("foodItems")
-                                    .add(f);
-                        }
-                    }
-                });
+                uploadFoodItem();
             }
         });
 
@@ -114,6 +106,66 @@ public class CreatePostActivity extends AppCompatActivity {
                 addFoodItem();
             }
         });
+
+        addressResultReceiver = new AddressResultReceiver(new Handler());
+        fetchAddress();
+    }
+
+    private void uploadFoodItem() {
+        final List<Food> foods = new ArrayList<>();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            foods.add(new Food(adapter.getItem(i), 1));
+        }
+        FirebaseUser producer = FirebaseAuth.getInstance().getCurrentUser();
+        firestore.collection("posts").add(new Post(
+                new GeoPoint(0, 0),
+                addressInput.getText().toString(),
+                generateTags,
+                photoUrl,
+                descInput.getText().toString(),
+                false,
+                "users/" + producer.getUid(),
+                ""
+        )).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override public void onSuccess(DocumentReference documentReference) {
+                for (Food f : foods) {
+                    firestore.collection("posts")
+                            .document(documentReference.getId())
+                            .collection("foodItems")
+                            .add(f);
+                }
+            }
+        });
+    }
+
+    protected void fetchAddress() {
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+
+        //If the app currently has access to the location permission...
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_REQ);
+            return;
+        }
+        FusedLocationProviderClient fusedLocationClient = LocationServices
+                .getFusedLocationProviderClient(this);
+        fusedLocationClient
+                .getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        lastLocation = location;
+                        // In some rare cases the location returned can be null
+                        if (lastLocation == null) return;
+
+                        // Start service and update UI to reflect new location
+                        Intent intent = new Intent(CreatePostActivity.this, FetchAddressIntentService.class)
+                                .putExtra(FetchAddressIntentService.Constants.RECEIVER, addressResultReceiver)
+                                .putExtra(FetchAddressIntentService.Constants.LOCATION_DATA_EXTRA, lastLocation);
+                        startService(intent);
+                    }
+                });
     }
 
     /**
@@ -131,7 +183,7 @@ public class CreatePostActivity extends AppCompatActivity {
             if (photo == null) return;
             thumbnail.setVisibility(View.VISIBLE);
             thumbnail.setImageBitmap(photo);
-            addTags(photo);
+            generateTags(photo);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             photo.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -165,6 +217,20 @@ public class CreatePostActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_REQ
+                && grantResults.length == 1
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            fetchAddress();
+        }
+    }
+
     private void openCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -172,7 +238,7 @@ public class CreatePostActivity extends AppCompatActivity {
         }
     }
 
-    private void addTags(Bitmap photo) {
+    private void generateTags(Bitmap photo) {
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(photo);
         FirebaseVisionLabelDetector detector = FirebaseVision.getInstance()
                 .getVisionLabelDetector();
@@ -183,6 +249,8 @@ public class CreatePostActivity extends AppCompatActivity {
                             public void onSuccess(List<FirebaseVisionLabel> labels) {
                                 // Task completed successfully
                                 for (FirebaseVisionLabel l : labels) {
+                                    if (l.getConfidence() > 0.5) generateTags.add(l.getLabel());
+
                                     Log.d(TAG, String.format("%s: %f %%", l.getLabel(), l.getConfidence()));
                                 }
                             }
@@ -214,10 +282,31 @@ public class CreatePostActivity extends AppCompatActivity {
                 .show();
     }
 
-    Bitmap rotate(Bitmap bitmap) {
+    private Bitmap rotate(Bitmap bitmap) {
         Matrix matrix = new Matrix();
         // setup rotation degree
         matrix.postRotate(90);
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultData == null) return;
+            // Display the address string
+            // or an error message sent from the intent service.
+            String addressRes = resultData.getString(FetchAddressIntentService.Constants.RESULT_DATA_KEY);
+            if (addressRes == null) addressRes = "";
+
+            // Show a toast message if an address was found.
+            if (resultCode == FetchAddressIntentService.Constants.SUCCESS_RESULT) {
+                addressInput.setText(addressRes);
+                Toast.makeText(CreatePostActivity.this, "Address Found", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

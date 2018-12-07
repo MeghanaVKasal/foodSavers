@@ -9,7 +9,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -19,10 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="label" />
+            android:value="label"/>
 
         <activity
             android:name=".MainActivity"
@@ -51,6 +50,10 @@
             android:name=".TrackingService"
             android:enabled="true"
             android:exported="true">
+        </service>
+        <service
+            android:name=".FetchAddressIntentService"
+            android:exported="false">
         </service>
     </application>
 

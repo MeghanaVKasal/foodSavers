@@ -117,16 +117,17 @@ public class CreatePostActivity extends AppCompatActivity {
             foods.add(new Food(adapter.getItem(i), 1));
         }
         FirebaseUser producer = FirebaseAuth.getInstance().getCurrentUser();
-        firestore.collection("posts").add(new Post(
-                new GeoPoint(0, 0),
-                addressInput.getText().toString(),
-                generateTags,
-                photoUrl,
-                descInput.getText().toString(),
-                false,
-                "users/" + producer.getUid(),
-                ""
-        )).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        firestore.collection("posts").add(
+                new Post(
+                        new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()),
+                        addressInput.getText().toString(),
+                        generateTags,
+                        photoUrl,
+                        descInput.getText().toString(),
+                        false,
+                        "users/" + producer.getUid(),
+                        ""/*A new post hasn't been consumed yet*/)
+        ).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override public void onSuccess(DocumentReference documentReference) {
                 for (Food f : foods) {
                     firestore.collection("posts")
@@ -134,6 +135,10 @@ public class CreatePostActivity extends AppCompatActivity {
                             .collection("foodItems")
                             .add(f);
                 }
+                Toast.makeText(CreatePostActivity.this,
+                        "Post created successfully!",
+                        Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
     }
@@ -305,7 +310,6 @@ public class CreatePostActivity extends AppCompatActivity {
             // Show a toast message if an address was found.
             if (resultCode == FetchAddressIntentService.Constants.SUCCESS_RESULT) {
                 addressInput.setText(addressRes);
-                Toast.makeText(CreatePostActivity.this, "Address Found", Toast.LENGTH_SHORT).show();
             }
         }
     }

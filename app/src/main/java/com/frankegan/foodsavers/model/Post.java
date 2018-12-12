@@ -7,12 +7,16 @@ import java.util.List;
 public class Post {
     GeoPoint location;
     String address;
-    List<String> tags;
     String pictureURL;
     String description;
     boolean claimed;
     String producer;
     String consumer;
+    List<String> tags;
+
+    public Post() {
+        //required for Firebase deserialization
+    }
 
     public Post(
             GeoPoint location,

@@ -119,7 +119,7 @@ public class CreatePostActivity extends AppCompatActivity {
         FirebaseUser producer = FirebaseAuth.getInstance().getCurrentUser();
         firestore.collection("posts").add(
                 new Post(
-                        new GeoPoint(0, 0),
+                        new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()),
                         addressInput.getText().toString(),
                         generateTags,
                         photoUrl,

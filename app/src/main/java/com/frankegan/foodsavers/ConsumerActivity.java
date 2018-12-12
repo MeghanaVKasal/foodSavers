@@ -106,9 +106,10 @@ public class ConsumerActivity extends AppCompatActivity
         bundle.putString("bundlePictureURL", post.getPictureURL());
         bundle.putString("bundleLatitude", String.valueOf(post.getLocation().getLatitude()));
         bundle.putString("bundleLongitude", String.valueOf(post.getLocation().getLongitude()));
+        bundle.putString("bundleFoodItems", "posts/" + snap.getId() + "/foodItems");
         List<String> foodList = post.getTags();
-        String foodString = TextUtils.join(" ", foodList);
-        bundle.putString("bundleFoodItems", foodString);
+        String foodString = TextUtils.join(", ", foodList);
+        bundle.putString("bundleTags", foodString);
         bundle.putString("bundleProducer", post.getProducer());
         bundle.putString("bundleDescription", post.getDescription());
         intent.putExtras(bundle);

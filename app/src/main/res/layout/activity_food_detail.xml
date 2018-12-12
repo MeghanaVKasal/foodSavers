@@ -46,6 +46,25 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/food_tags_label"
+                style="@style/AppTheme.Subheader"
+                android:layout_width="115dp"
+                android:layout_height="wrap_content"
+                android:text="Auto-Tags:" />
+
+            <TextView
+                android:id="@+id/tags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
                 android:id="@+id/food_items_label"
                 style="@style/AppTheme.Subheader"
                 android:layout_width="115dp"
@@ -54,9 +73,10 @@
 
             <TextView
                 android:id="@+id/food_items"
-                android:layout_width="270dp"
-                android:layout_height="35dp"
-                android:text="mango" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -118,7 +138,7 @@
 
     </LinearLayout>
 
-    <ImageButton
+    <Button
         android:id="@+id/mapMe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -126,5 +146,6 @@
         android:layout_marginRight="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
+        android:text="OPEN IN MAPS"
         app:srcCompat="@drawable/ic_place" />
 </android.support.constraint.ConstraintLayout>

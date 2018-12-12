@@ -55,6 +55,17 @@
             android:name=".FetchAddressIntentService"
             android:exported="false">
         </service>
+
+        <activity
+            android:name=".ConsumerActivity"
+            android:label="@string/title_activity_consumer"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".FoodDetailActivity"
+            android:label="@string/title_activity_food_detail"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

@@ -3,4 +3,8 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_create_post">CreatePost</string>
     <string name="tracking_enabled_notif">Tracking is currently enabled. Tap to cancel.</string>
+    <string name="intro_text">Welcome to FoodSaver! Click the buttons below to get started reducing
+        food waste or sharing your leftovers with others.</string>
+    <string name="title_activity_consumer">ConsumerActivity</string>
+    <string name="title_activity_food_detail">FoodDetailActivity</string>
 </resources>

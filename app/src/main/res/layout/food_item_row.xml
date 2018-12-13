@@ -59,29 +59,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/food_address" />
 
-    <TextView
-        android:id="@+id/available_untill_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="11dp"
-        android:layout_marginRight="11dp"
-        android:layout_marginTop="21dp"
-        android:text="Avilable untill"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!--<TextView-->
+        <!--android:id="@+id/available_untill_label"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginEnd="11dp"-->
+        <!--android:layout_marginRight="11dp"-->
+        <!--android:layout_marginTop="21dp"-->
+        <!--android:text="Avilable untill"-->
+        <!--android:textStyle="bold"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="parent" />-->
 
-    <TextView
-        android:id="@+id/date_time_text"
-        android:layout_width="wrap_content"
-        android:layout_height="16dp"
-        android:layout_marginBottom="35dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="35dp"
-        android:text="Date - time"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/available_untill_label"
-        app:layout_constraintTop_toTopOf="@+id/food_items" />
+    <!--<TextView-->
+        <!--android:id="@+id/date_time_text"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="16dp"-->
+        <!--android:layout_marginBottom="35dp"-->
+        <!--android:layout_marginEnd="20dp"-->
+        <!--android:layout_marginRight="20dp"-->
+        <!--android:layout_marginTop="35dp"-->
+        <!--android:text="Date - time"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintEnd_toEndOf="@+id/available_untill_label"-->
+        <!--app:layout_constraintTop_toTopOf="@+id/food_items" />-->
 
 </android.support.constraint.ConstraintLayout>

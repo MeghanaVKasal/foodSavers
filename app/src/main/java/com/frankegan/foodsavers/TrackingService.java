@@ -71,8 +71,8 @@ public class TrackingService extends Service {
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.tracking_enabled_notif))
                 .setOngoing(true)
-                .setContentIntent(broadcastIntent);
-               // .setSmallIcon(R.drawable.ic_location_on_black_24dp);
+                .setContentIntent(broadcastIntent)
+                .setSmallIcon(R.drawable.ic_location_on_black_24dp);
         startForeground(1, builder.build());
     }
 

@@ -3,6 +3,7 @@ package com.frankegan.foodsavers;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -10,12 +11,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,25 +28,36 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
-import android.support.annotation.NonNull;
 
-public class FoodDetailActivity extends AppCompatActivity {
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class FoodDetailActivity extends AppCompatActivity implements OnMapReadyCallback {
+
     String mLatitude;
     String mLongitude;
+    String docPath;
 
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private static final String TAG = "FoodDetailActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_food_detail);
+        ButterKnife.bind(this);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
         //Get values from bundle
         Bundle bundle = getIntent().getExtras();
 
         String mFoodPicUrl = bundle.getString("bundlePictureURL");
         String foodTags = bundle.getString("bundleTags");
-        String foodItemsCollection = bundle.getString("bundleFoodItems");
+        docPath = bundle.getString("bundleFoodItems");
+        String foodItemsCollection = docPath + "/foodItems";
         String mDescription = bundle.getString("bundleDescription");
         final String mProducer = bundle.getString("bundleProducer");
         final String mConsumer = bundle.getString("bundleConsumer");
@@ -93,7 +109,7 @@ public class FoodDetailActivity extends AppCompatActivity {
             }
         });
 
-        RatingBar mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
+        RatingBar mRatingBar = findViewById(R.id.ratingBar);
         mRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
@@ -119,5 +135,20 @@ public class FoodDetailActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @OnClick(R.id.claim_button)
+    void claimFood() {
+        firestore.document(docPath).update("claimed", true);
+    }
+
+    @Override public void onMapReady(GoogleMap googleMap) {
+        // Add a marker in Sydney, Australia,
+        // and move the map's camera to the same location.
+        LatLng marker = new LatLng(Double.parseDouble(mLatitude), Double.parseDouble(mLongitude));
+        googleMap.addMarker(new MarkerOptions().position(marker)
+                .title("Food Post"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(marker));
+        googleMap.setMinZoomPreference(15);
     }
 }

@@ -12,6 +12,8 @@ import com.frankegan.foodsavers.model.Post;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -48,6 +50,8 @@ public class FoodItemsAdapter extends FireStoreAdapter<FoodItemsAdapter.ViewHold
         TextView foodAddressView;
         @BindView(R.id.food_producerName)
         TextView foodProducerNameView;
+        @BindView(R.id.food_items)
+        TextView foodItemsView;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -62,6 +66,14 @@ public class FoodItemsAdapter extends FireStoreAdapter<FoodItemsAdapter.ViewHold
 
             foodAddressView.setText(postModel.getAddress());
             foodProducerNameView.setText(postModel.getDescription());
+            List<String> foodList= ((Post) postModel).getTags();
+            String foodString;
+            if(foodList != null) {
+                foodString = String.join(" ", foodList);
+            }else{
+                foodString = " ";
+            }
+            foodItemsView.setText(foodString);
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {

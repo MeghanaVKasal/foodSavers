@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
             if (user == null) return;
             saveUserData(user);
             requestLocationTracking();
+            Toast.makeText(this, "user has benn sing in 1",Toast.LENGTH_LONG).show();
             firebaseInstanceId.getInstanceId()
                     .addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
                         @Override public void onSuccess(InstanceIdResult instanceIdResult) {
@@ -175,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
         userData.put("displayName", firebaseUser.getDisplayName());
         userData.put("email", firebaseUser.getEmail());
         userData.put("photoUrl", firebaseUser.getPhotoUrl().toString());
+        Toast.makeText(this, "user has benn sing in",Toast.LENGTH_LONG).show();
         firestore.collection("users")
                 .document(firebaseUser.getUid())
                 .set(userData, SetOptions.merge());

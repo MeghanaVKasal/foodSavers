@@ -13,6 +13,63 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="SplashScreenTheme" parent="Base.AppTheme.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Base.AppTheme.NoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:fontFamily">sans-serif-regular</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlNormal">@color/colorAccent</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+        <item name="colorControlHighlight">@color/light_gray</item>
+        <item name="android:textColorHint">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+
+    </style>
+
+
+
+
+    <style name = "Button_Caption_White_Style" parent="Button_Caption_Style">
+        <item name = "android:textColor">@color/colorAccent</item>
+        <item name = "android:layout_marginBottom">@dimen/margin_btw_buttons</item>
+        <item name="android:theme">@style/AppTheme.White.Button</item>
+        <item name="android:background">@color/colorWhite</item>
+    </style>
+    <style name="AppTheme.White.Button" parent="Base.Widget.AppCompat.Button">
+        <item name="colorButtonNormal">@color/colorAccent</item>
+    </style>
+
+
+
+    <style name = "Button_Caption_green_Style" parent="Button_Caption_Style">
+        <item name = "android:textColor">@color/colorAccent</item>
+        <item name = "android:layout_marginBottom">@dimen/margin_btw_buttons</item>
+        <item name="android:theme">@style/AppTheme.green.Button</item>
+    </style>
+    <style name="AppTheme.green.Button" parent="Base.Widget.AppCompat.Button">
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+    </style>
+
+
+    <style name="Button_Caption_Style">
+        <item name = "android:textSize">@dimen/button_caption_text_size</item>
+        <item name = "android:fontFamily">sans-serif-medium</item>
+    </style>
+
+
+    <style name="ActionBarStyle" parent="android:style/Theme">
+        <item name="android:textAppearance">@android:style/TextAppearance.Small</item>
+    </style>
+
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>

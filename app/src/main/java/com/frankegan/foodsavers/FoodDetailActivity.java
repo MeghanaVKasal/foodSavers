@@ -9,6 +9,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,7 +23,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FoodDetailActivity extends AppCompatActivity {
+public class FoodDetailActivity extends AppCompatActivity implements OnMapReadyCallback {
     String mLatitude;
     String mLongitude;
     String docPath;
@@ -29,6 +35,10 @@ public class FoodDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_food_detail);
         ButterKnife.bind(this);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
         //Get values from bundle
         Bundle bundle = getIntent().getExtras();
@@ -91,5 +101,15 @@ public class FoodDetailActivity extends AppCompatActivity {
     @OnClick(R.id.claim_button)
     void claimFood(){
         firestore.document(docPath).update("claimed", true);
+    }
+
+    @Override public void onMapReady(GoogleMap googleMap) {
+        // Add a marker in Sydney, Australia,
+        // and move the map's camera to the same location.
+        LatLng marker = new LatLng(Double.parseDouble(mLatitude), Double.parseDouble(mLongitude));
+        googleMap.addMarker(new MarkerOptions().position(marker)
+                .title("Food Post"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(marker));
+        googleMap.setMinZoomPreference(15);
     }
 }

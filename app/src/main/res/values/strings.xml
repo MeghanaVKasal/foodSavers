@@ -7,4 +7,5 @@
         food waste or sharing your leftovers with others.</string>
     <string name="title_activity_consumer">ConsumerActivity</string>
     <string name="title_activity_food_detail">FoodDetailActivity</string>
+    <string name="google_maps_key">AIzaSyAn9Jy78RzrIfCFnn5hryr_EkYmuodL3kg</string>
 </resources>

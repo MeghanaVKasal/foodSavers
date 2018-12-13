@@ -14,9 +14,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class FoodDetailActivity extends AppCompatActivity {
     String mLatitude;
     String mLongitude;
+    String docPath;
 
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
@@ -24,13 +28,15 @@ public class FoodDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_food_detail);
+        ButterKnife.bind(this);
 
         //Get values from bundle
         Bundle bundle = getIntent().getExtras();
 
         String mFoodPicUrl = bundle.getString("bundlePictureURL");
         String foodTags = bundle.getString("bundleTags");
-        String foodItemsCollection = bundle.getString("bundleFoodItems");
+        docPath = bundle.getString("bundleFoodItems");
+        String foodItemsCollection = docPath + "/foodItems";
         String mDescription = bundle.getString("bundleDescription");
         String mProducer = bundle.getString("bundleProducer");
         String mAddress = bundle.getString("bundleAddress");
@@ -80,5 +86,10 @@ public class FoodDetailActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @OnClick(R.id.claim_button)
+    void claimFood(){
+        firestore.document(docPath).update("claimed", true);
     }
 }

@@ -39,8 +39,6 @@ public class ConsumerActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_consumer);
         ButterKnife.bind(this);
-        // Enable Firestore logging
-        FirebaseFirestore.setLoggingEnabled(true);
         // Initialize Firestore and the main RecyclerView
         initFireStore();
         initRecyclerView();
@@ -49,6 +47,7 @@ public class ConsumerActivity extends AppCompatActivity
     private void initFireStore() {
         firestore = FirebaseFirestore.getInstance();
         query = firestore.collection("posts")
+                .whereEqualTo("claimed", false)
                 .limit(LIMIT);
     }
 
@@ -106,7 +105,7 @@ public class ConsumerActivity extends AppCompatActivity
         bundle.putString("bundlePictureURL", post.getPictureURL());
         bundle.putString("bundleLatitude", String.valueOf(post.getLocation().getLatitude()));
         bundle.putString("bundleLongitude", String.valueOf(post.getLocation().getLongitude()));
-        bundle.putString("bundleFoodItems", "posts/" + snap.getId() + "/foodItems");
+        bundle.putString("bundleFoodItems", "posts/" + snap.getId());
         List<String> foodList = post.getTags();
         String foodString = TextUtils.join(", ", foodList);
         bundle.putString("bundleTags", foodString);

@@ -1,6 +1,7 @@
 package com.frankegan.foodsavers;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -281,6 +283,8 @@ public class CreatePostActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String foodName = foodInput.getText().toString();
                         adapter.add(foodName);
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(foodInput.getWindowToken(), 0);
                     }
                 })
                 .setCancelable(true)

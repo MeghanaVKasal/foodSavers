@@ -2,6 +2,7 @@ package com.frankegan.foodsavers.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,15 +66,14 @@ public class FoodItemsAdapter extends FireStoreAdapter<FoodItemsAdapter.ViewHold
             Post postModel = snapshot.toObject(Post.class);
 
             foodAddressView.setText(postModel.getAddress());
-            foodProducerNameView.setText(postModel.getDescription());
-            List<String> foodList= ((Post) postModel).getTags();
-            String foodString;
-            if(foodList != null) {
-                foodString = String.join(" ", foodList);
-            }else{
-                foodString = " ";
+            List<String> foodList = (postModel).getTags();
+            String foodString = " ";
+            if (foodList != null) {
+                foodString = TextUtils.join(", ", foodList);
             }
-            foodItemsView.setText(foodString);
+            foodProducerNameView.setText(foodString);
+
+            foodItemsView.setText(postModel.getDescription());
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {
